@@ -1,0 +1,81 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    /* Custom CSS to make the exam results section full width */
+    .full-width {
+      width: 100%;
+      margin: 20px 0;
+    }
+    .full-width table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .full-width th, .full-width td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    .action-button {
+      padding: 5px 10px;
+      background-color: #2d90bd;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .action-button:hover {
+      background-color: #205067;
+    }
+  </style>
+{% endblock %}
+
+{% block after_field_sets %}
+  {{ block.super }}
+
+  <div class="full-width">
+    <h2>Exam Results</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Level</th>
+          <th>Total Score</th>
+          <th>Total Percentage</th>
+          <th>PDF</th>
+          {% if can_edit_exam %}
+            <th>Actions</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for result in exam_results %}
+          <tr>
+            <td>{{ result.date }}</td>
+            <td>{{ result.level }}</td>
+            <td>{{ result.total_score }}</td>
+            <td>{{ result.total_percentage }}%</td>
+            <td>
+              {% if result.pdf %}
+                <a href="{{ result.pdf.url }}" download>Download PDF</a>
+              {% else %}
+                No PDF available
+              {% endif %}
+            </td>
+            {% if can_edit_exam %}
+              <td>
+                <a href="{% url 'admin:app_examresult_change' result.id %}" class="action-button">Edit</a>
+              </td>
+            {% endif %}
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="{% if can_edit_exam %}6{% else %}5{% endif %}">No exam results found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
