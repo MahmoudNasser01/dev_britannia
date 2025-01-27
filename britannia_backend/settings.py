@@ -83,13 +83,24 @@ WSGI_APPLICATION = 'britannia_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'britanni_britannia_backend	',
+        'USER': 'britanni_britannia_backend_user',  # Replace with your MySQL username
+        'PASSWORD': 'britanni_britannia_backend_user',  # Replace with your MySQL password
+        'HOST': 'localhost',  # Or the IP address of your MySQL server
+        'PORT': '3306',  # Default MySQL port (adjust if necessary)
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -216,7 +227,7 @@ JAZZMIN_SETTINGS = {
     "site_logo": "/square-logo.png",
 
     # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
-    "login_logo": None,
+    "login_logo": '/square-logo.png',
 
     # Logo to use for login form in dark themes (defaults to login_logo)
     "login_logo_dark": None,

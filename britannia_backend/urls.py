@@ -43,7 +43,7 @@ urlpatterns = [
          PasswordResetConfirmView.as_view(),
          name='password_reset_confirm'),
     path('profile/', StudentProfileView.as_view(), name='student-profile'),
-    path('', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('api/auth/', include('dj_rest_auth.urls')),
     path('api/auth/registration/', RegisterView.as_view(), name='register'),
     path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
