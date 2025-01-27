@@ -32,9 +32,8 @@
   </style>
 {% endblock %}
 
-{% block after_field_sets %}
+{% block content %}
   {{ block.super }}
-
   <div class="full-width">
     <h2>Exam Results</h2>
     <table>
@@ -66,7 +65,7 @@
             </td>
             {% if can_edit_exam %}
               <td>
-                <a href="{% url 'admin:app_examresult_change' result.id %}" class="action-button">Edit</a>
+                <a href="{% url 'admin:app_examresult_change' result.id %}" class="btn btn-info">Edit</a>
               </td>
             {% endif %}
           </tr>

@@ -18,8 +18,11 @@ def student_signup(request):
         form = StudentSignupForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
-            return redirect('admin:login')  # Redirect to the home page or any other page
+            # create
+            return redirect('admin:index')
+        else:
+            # return form errors
+            return render(request, 'app/student_signup.html', {'form': form})
     else:
         form = StudentSignupForm()
     return render(request, 'app/student_signup.html', {'form': form})
