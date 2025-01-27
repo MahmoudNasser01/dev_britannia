@@ -94,7 +94,7 @@ WSGI_APPLICATION = 'britannia_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'britanni_britannia_backend	',
+        'NAME': 'britanni_britannia_backend',
         'USER': 'britanni_britannia_backend_user',  # Replace with your MySQL username
         'PASSWORD': 'britanni_britannia_backend_user',  # Replace with your MySQL password
         'HOST': 'localhost',  # Or the IP address of your MySQL server
