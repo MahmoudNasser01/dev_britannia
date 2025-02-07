@@ -5,9 +5,10 @@ from django.db import models
 from django.forms import DateInput
 from django.urls import reverse
 from django.utils.html import format_html
+from import_export.admin import ImportExportModelAdmin
+
 from .models import User, Student, Teacher, ExamResult, CourseLevel, ManagingDirector
-
-
+from .recources import ExamResultResource
 
 
 # admin.site.register(User)
@@ -104,8 +105,9 @@ class ExamResultAdminForm(forms.ModelForm):
         return cleaned_data
 
 @admin.register(ExamResult)
-class ExamResultAdmin(admin.ModelAdmin):
+class ExamResultAdmin(ImportExportModelAdmin):
     form = ExamResultAdminForm
+    resource_classes = [ExamResultResource]
     list_display = ('student', 'date_of_creation', 'level', 'total_score', 'total_percentage')
     search_fields = ('student__full_name', 'student__student_id')
     list_filter = ('level__year', 'level__month')

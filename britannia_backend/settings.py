@@ -45,6 +45,8 @@ INSTALLED_APPS = [
 
     # local apps
     'app',
+    'import_export',
+
 ]
 
 MIDDLEWARE = [
@@ -343,3 +345,5 @@ JAZZMIN_SETTINGS = {
     "changeform_format_overrides": {},
     # Add a language dropdown into the admin
 }
+
+

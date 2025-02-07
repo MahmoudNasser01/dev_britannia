@@ -8,7 +8,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from app.pdf_generate import generate_exam_result_pdf_view
-from guardian.shortcuts import assign_perm
 
 
 class CustomUserManager(BaseUserManager):
