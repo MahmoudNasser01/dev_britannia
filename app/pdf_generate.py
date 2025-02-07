@@ -27,7 +27,7 @@ def generate_exam_result_pdf_view(exam_result):
         })
 
         # Convert the HTML content to a PDF using WeasyPrint
-        pdf = HTML(string=html_content, base_url=settings.BASE_DIR).write_pdf()
+        pdf = HTML(string=str(html_content), base_url=str(settings.BASE_DIR)).write_pdf()
 
 
         return pdf
