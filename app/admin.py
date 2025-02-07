@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.forms import DateInput
 from django.urls import reverse
 from django.utils.html import format_html
 from .models import User, Student, Teacher, ExamResult, CourseLevel, ManagingDirector
@@ -74,6 +75,10 @@ class ExamResultAdmin(admin.ModelAdmin):
             form.base_fields['student'].initial = student  # Pre-fill the student field
             form.base_fields['level'].initial = student.level  # Pre-fill the level field
         return form
+
+    formfield_overrides = {
+        'date': {'widget': DateInput(attrs={'type': 'date'})},
+    }
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
