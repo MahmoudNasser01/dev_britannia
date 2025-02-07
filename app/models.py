@@ -103,7 +103,7 @@ class ManagingDirector(models.Model):
 
 
 class ExamResult(models.Model):
-    date = models.DateField()
+    date_of_creation = models.DateField()
     level = models.ForeignKey(CourseLevel, on_delete=models.CASCADE, related_name='exam_results')
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='exam_results')
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='exam_results')

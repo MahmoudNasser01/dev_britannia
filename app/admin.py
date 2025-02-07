@@ -55,7 +55,7 @@ admin.site.register(User)
 
 @admin.register(ExamResult)
 class ExamResultAdmin(admin.ModelAdmin):
-    list_display = ('student', 'date', 'level', 'total_score', 'total_percentage')
+    list_display = ('student', 'date_of_creation', 'level', 'total_score', 'total_percentage')
     search_fields = ('student__full_name', 'student__student_id')
     list_filter = ('level__year', 'level__month')
 
@@ -76,9 +76,7 @@ class ExamResultAdmin(admin.ModelAdmin):
             form.base_fields['level'].initial = student.level  # Pre-fill the level field
         return form
 
-    formfield_overrides = {
-        'date': {'widget': DateInput(attrs={'type': 'date'})},
-    }
+
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
