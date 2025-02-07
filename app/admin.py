@@ -6,14 +6,22 @@ from django.forms import DateInput
 from django.urls import reverse
 from django.utils.html import format_html
 from .models import User, Student, Teacher, ExamResult, CourseLevel, ManagingDirector
-from django.contrib.auth.admin import UserAdmin
 
 
 
 
-admin.site.register(User)
-# @admin.register(User)
-# class CustomUserAdmin(UserAdmin):
+# admin.site.register(User)
+@admin.register(User)
+class CustomUserAdmin(admin.ModelAdmin):
+
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs  # Superusers can see all users
+        return qs.filter(id=request.user.id)
+
+
 #     model = User
 #     list_display = ('email', 'is_staff', 'is_active')
 #     list_filter = ('is_staff', 'is_active')
@@ -104,7 +112,7 @@ class ExamResultAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        if request.user.is_superuser:
+        if request.user.is_superuser or request.user.is_teacher:
             return qs
         if hasattr(request.user, 'student_profile'):
             return qs.filter(student=request.user.student_profile)
@@ -130,6 +138,16 @@ class StudentAdmin(admin.ModelAdmin):
     list_filter = ('level','level__year', 'level__month')
     change_form_template = 'admin/student_change_form.html'
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if not request.user.is_superuser:
+            if db_field.name == 'user':
+                if hasattr(request.user, 'student_profile'):
+                    # Filter the user field to show only the current student's user
+                    kwargs['queryset'] = User.objects.filter(id=request.user.id)
+                else:
+                    # If not a student, make the user field empty or return no queryset
+                    kwargs['queryset'] = User.objects.none()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -140,13 +158,13 @@ class StudentAdmin(admin.ModelAdmin):
         return qs.none()  # Non-students see no profiles
 
     def has_change_permission(self, request, obj=None):
+        # allow teachers to edit student profile
+        if obj is not None and request.user.is_superuser:
+            return True
         # Allow students to edit their own profile
         if obj is not None and hasattr(request.user, 'student_profile'):
             return obj.id == request.user.student_profile.id
 
-        # allow teachers to edit student profile
-        if obj is not None and request.user.is_teacher:
-            return True
         # Superusers can edit all profiles
         return super().has_change_permission(request, obj)
 
@@ -176,6 +194,29 @@ class StudentAdmin(admin.ModelAdmin):
 class TeacherAdmin(admin.ModelAdmin):
     list_display = ('full_name',)
     search_fields = ('full_name',)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if not request.user.is_superuser:
+            if db_field.name == 'user':
+                if hasattr(request.user, 'teacher_profile'):
+                    # Filter the user field to show only the current student's user
+                    kwargs['queryset'] = User.objects.filter(id=request.user.id)
+                else:
+                    # If not a student, make the user field empty or return no queryset
+                    kwargs['queryset'] = User.objects.none()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+    def has_change_permission(self, request, obj=None):
+        # allow teachers to edit student profile
+        if obj is not None and request.user.is_superuser:
+            return True
+        # Allow students to edit their own profile
+        if obj is not None and request.user.is_teacher:
+            return obj.id == request.user.teacher_profile.id
+
+        # Superusers can edit all profiles
+        return super().has_change_permission(request, obj)
 
 @admin.register(ManagingDirector)
 class ManagingDirectorAdmin(admin.ModelAdmin):

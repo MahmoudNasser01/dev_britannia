@@ -31,9 +31,12 @@
     }
   </style>
 {% endblock %}
-
+    {% block extra_actions %}
+    <a class="btn btn-block {{ jazzmin_ui.button_classes.info }} btn-sm" href="{% url 'admin:app_examresult_add' %}?student_id={{ original.id }}&next={{ request.META.HTTP_REFERER }}">{% trans 'Add Exam Result' %}</a>
+    {% endblock %}
 {% block content %}
   {{ block.super }}
+
   <div class="full-width">
     <h2>Exam Results</h2>
     <table>
@@ -52,7 +55,7 @@
       <tbody>
         {% for result in exam_results %}
           <tr>
-            <td>{{ result.date }}</td>
+            <td>{{ result.date_of_creation }}</td>
             <td>{{ result.level }}</td>
             <td>{{ result.total_score }}</td>
             <td>{{ result.total_percentage }}%</td>
@@ -65,7 +68,7 @@
             </td>
             {% if can_edit_exam %}
               <td>
-                <a href="{% url 'admin:app_examresult_change' result.id %}" class="btn btn-info">Edit</a>
+                <a href="{% url 'admin:app_examresult_change' result.id %}" class="btn btn-info">Edit or View</a>
               </td>
             {% endif %}
           </tr>

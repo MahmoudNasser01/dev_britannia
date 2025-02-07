@@ -8,6 +8,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from app.pdf_generate import generate_exam_result_pdf_view
+from guardian.shortcuts import assign_perm
 
 
 class CustomUserManager(BaseUserManager):
@@ -46,6 +47,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     def is_teacher(self):
         return hasattr(self, 'teacher_profile')
 
+    def save(self, *args, **kwargs):
+        # Check if password has changed by comparing the current value with the original
+        if self.pk is not None:  # Check if the object already exists in the database
+            original = User.objects.get(pk=self.pk)
+            if original.password != self.password:
+                self.set_password(self.password)  # Only set password if it has changed
+        else:
+            self.set_password(self.password)  # Set password for new objects
+
+        super().save(*args, **kwargs)
 
 
 class CourseLevel(models.Model):
@@ -79,7 +90,7 @@ class Student(models.Model):
     passport_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
     country = models.CharField(max_length=100)
     level = models.ForeignKey(CourseLevel, on_delete=models.CASCADE, related_name='students', null=True, blank=True)
-
+    phone_number = models.CharField(max_length=20)
     def __str__(self):
         return self.full_name
 
