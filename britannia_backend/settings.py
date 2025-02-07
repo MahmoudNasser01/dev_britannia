@@ -31,9 +31,8 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.auth',
-    # 'jazzmin',
     'jazzmin',
+    'django.contrib.auth',
     'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -83,24 +82,24 @@ WSGI_APPLICATION = 'britannia_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'britanni_britannia_backend',
-        'USER': 'britanni_britannia_backend_user',  # Replace with your MySQL username
-        'PASSWORD': 'britanni_britannia_backend_user',  # Replace with your MySQL password
-        'HOST': 'localhost',  # Or the IP address of your MySQL server
-        'PORT': '3306',  # Default MySQL port (adjust if necessary)
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'britanni_britannia_backend',
+#         'USER': 'britanni_britannia_backend_user',  # Replace with your MySQL username
+#         'PASSWORD': 'britanni_britannia_backend_user',  # Replace with your MySQL password
+#         'HOST': 'localhost',  # Or the IP address of your MySQL server
+#         'PORT': '3306',  # Default MySQL port (adjust if necessary)
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -246,7 +245,7 @@ JAZZMIN_SETTINGS = {
 
     # List of model admins to search from the search bar, search bar omitted if excluded
     # If you want to use a single search field you dont need to use a list, you can use a simple string
-    "search_model": ["auth.User", "auth.Group"],
+    "search_model": [],
 
     # Field name on user model that contains avatar ImageField/URLField/Charfield or a callable that receives the user
     "user_avatar": None,
@@ -259,10 +258,9 @@ JAZZMIN_SETTINGS = {
     "topmenu_links": [
 
         # Url that gets reversed (Permissions can be added)
-        {"name": "Home",  "url": "admin:index", "permissions": ["auth.view_user"]},
 
         # model admin to link to (Permissions checked against model)
-        {"model": "auth.User"},
+
     ],
 
     #############
@@ -271,7 +269,7 @@ JAZZMIN_SETTINGS = {
 
     # Additional links to include in the user menu on the top right ("app" url type is not allowed)
     "usermenu_links": [
-        {"model": "auth.user"}
+
     ],
 
     #############
@@ -342,6 +340,6 @@ JAZZMIN_SETTINGS = {
     # - carousel
     "changeform_format": "horizontal_tabs",
     # override change forms on a per modeladmin basis
-    "changeform_format_overrides": {"auth.user": "collapsible", "auth.group": "vertical_tabs"},
+    "changeform_format_overrides": {},
     # Add a language dropdown into the admin
 }

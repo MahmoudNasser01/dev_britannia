@@ -6,46 +6,51 @@ from django.contrib.auth.admin import UserAdmin
 
 
 
-@admin.register(User)
-class CustomUserAdmin(UserAdmin):
-    model = User
-    list_display = ('email', 'is_staff', 'is_active')
-    list_filter = ('is_staff', 'is_active')
-    fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
-    )
-    add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2', 'is_staff', 'is_active')}
-        ),
-    )
-    search_fields = ('email',)
-    ordering = ('email',)
 
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        if request.user.is_superuser:
-            return qs  # Superusers can see all users
-        if hasattr(request.user, 'student_profile'):
-            return qs.filter(id=request.user.id)  # Students can only see their own profile
-        return qs.none()  # Non-students see no profiles
-
-    def has_change_permission(self, request, obj=None):
-        # Allow students to edit their own profile
-        if obj is not None and hasattr(request.user, 'student_profile') or request.user.is_teacher:
-            return obj.id == request.user.id
-        # Superusers can edit all profiles
-        return super().has_change_permission(request, obj)
-
-    def get_fieldsets(self, request, obj=None):
-        if obj and hasattr(request.user, 'student_profile') and obj.id == request.user.id or request.user.is_teacher or request.user.is_superuser:
-            # Students can only edit email and password
-            return (
-                (None, {'fields': ('email', 'password')}),
-            )
-        return super().get_fieldsets(request, obj)
+admin.site.register(User)
+# @admin.register(User)
+# class CustomUserAdmin(UserAdmin):
+#     model = User
+#     list_display = ('email', 'is_staff', 'is_active')
+#     list_filter = ('is_staff', 'is_active')
+#     fieldsets = (
+#         (None, {'fields': ('email', 'password')}),
+#         ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
+#     )
+#     add_fieldsets = (
+#         (
+#             None,
+#             {
+#                 "classes": ("wide",),
+#                 "fields": ("username", "usable_password", "password1", "password2"),
+#             },
+#         ),
+#     )
+#     search_fields = ('email',)
+#     ordering = ('email',)
+#
+#     def get_queryset(self, request):
+#         qs = super().get_queryset(request)
+#         if request.user.is_superuser:
+#             return qs  # Superusers can see all users
+#         if hasattr(request.user, 'student_profile'):
+#             return qs.filter(id=request.user.id)  # Students can only see their own profile
+#         return qs.none()  # Non-students see no profiles
+#
+#     def has_change_permission(self, request, obj=None):
+#         # Allow students to edit their own profile
+#         if obj is not None and hasattr(request.user, 'student_profile') or request.user.is_teacher:
+#             return obj.id == request.user.id
+#         # Superusers can edit all profiles
+#         return super().has_change_permission(request, obj)
+#
+#     def get_fieldsets(self, request, obj=None):
+#         if obj and hasattr(request.user, 'student_profile') and obj.id == request.user.id or request.user.is_teacher or request.user.is_superuser:
+#             # Students can only edit email and password
+#             return (
+#                 (None, {'fields': ('email', 'password', 'is_staff', 'is_active')}),
+#             )
+#         return super().get_fieldsets(request, obj)
 
 @admin.register(ExamResult)
 class ExamResultAdmin(admin.ModelAdmin):
