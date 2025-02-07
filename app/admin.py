@@ -1,4 +1,6 @@
+from django import forms
 from django.contrib import admin
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.forms import DateInput
 from django.urls import reverse
@@ -54,8 +56,48 @@ admin.site.register(User)
 #             )
 #         return super().get_fieldsets(request, obj)
 
+class ExamResultAdminForm(forms.ModelForm):
+    class Meta:
+        model = ExamResult
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Validate that the scores do not exceed the total scores
+        if cleaned_data.get('grammar') > cleaned_data.get('grammar_total'):
+            raise ValidationError(
+                f"Grammar score cannot exceed the maximum allowed ({cleaned_data.get('grammar_total')}).")
+
+        if cleaned_data.get('vocabulary') > cleaned_data.get('vocabulary_total'):
+            raise ValidationError(
+                f"Vocabulary score cannot exceed the maximum allowed ({cleaned_data.get('vocabulary_total')}).")
+
+        if cleaned_data.get('reading') > cleaned_data.get('reading_total'):
+            raise ValidationError(
+                f"Reading score cannot exceed the maximum allowed ({cleaned_data.get('reading_total')}).")
+
+        if cleaned_data.get('writing') > cleaned_data.get('writing_total'):
+            raise ValidationError(
+                f"Writing score cannot exceed the maximum allowed ({cleaned_data.get('writing_total')}).")
+
+        if cleaned_data.get('listening') > cleaned_data.get('listening_total'):
+            raise ValidationError(
+                f"Listening score cannot exceed the maximum allowed ({cleaned_data.get('listening_total')}).")
+
+        if cleaned_data.get('speaking') > cleaned_data.get('speaking_total'):
+            raise ValidationError(
+                f"Speaking score cannot exceed the maximum allowed ({cleaned_data.get('speaking_total')}).")
+
+        if cleaned_data.get('teacher_assessment') > cleaned_data.get('teacher_assessment_total'):
+            raise ValidationError(
+                f"Teacher assessment score cannot exceed the maximum allowed ({cleaned_data.get('teacher_assessment_total')}).")
+
+        return cleaned_data
+
 @admin.register(ExamResult)
 class ExamResultAdmin(admin.ModelAdmin):
+    form = ExamResultAdminForm
     list_display = ('student', 'date_of_creation', 'level', 'total_score', 'total_percentage')
     search_fields = ('student__full_name', 'student__student_id')
     list_filter = ('level__year', 'level__month')

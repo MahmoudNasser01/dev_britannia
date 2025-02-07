@@ -130,7 +130,7 @@ class ExamResult(models.Model):
     total_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
 
     # Attendance and recommendation
-    attendance = models.CharField(max_length=20)
+    note = models.CharField(max_length=500)
     attendance_percentage = models.DecimalField(max_digits=5, decimal_places=2)
     teacher_recommendation = models.CharField(max_length=50, choices=[('Repeat', 'Repeat'), ('Progress', 'Progress'), ('Marginal Pass', 'Marginal Pass'), ('Conditional Pass', 'Conditional Pass')])
 
@@ -140,7 +140,7 @@ class ExamResult(models.Model):
         verbose_name_plural = "Exam Results"
 
     def __str__(self):
-        return f"{self.student.full_name} - {self.date}"
+        return f"{self.student.full_name} - {self.date_of_creation}"
 
 
     def save(self, *args, **kwargs):
