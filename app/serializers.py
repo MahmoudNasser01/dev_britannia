@@ -1,3 +1,4 @@
+from django.contrib.auth.models import Group
 from rest_framework import serializers
 from .models import User, CourseLevel, Student, Teacher, ExamResult
 from django.contrib.auth import get_user_model
@@ -10,11 +11,12 @@ class RegisterSerializer(serializers.ModelSerializer):
     student_id = serializers.CharField(max_length=50)
     passport_number = serializers.CharField(max_length=50, required=False, allow_null=True)
     country = serializers.CharField(max_length=100)
+    phone_number = serializers.CharField(max_length=20)
     level = serializers.PrimaryKeyRelatedField(queryset=CourseLevel.objects.all())
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'full_name', 'student_id', 'passport_number', 'country', 'level']
+        fields = ['email', 'password', 'full_name', 'student_id', 'passport_number', 'country', 'phone_number', 'level']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -25,11 +27,16 @@ class RegisterSerializer(serializers.ModelSerializer):
             'passport_number': validated_data.pop('passport_number', None),
             'country': validated_data.pop('country'),
             'level': validated_data.pop('level'),
+            'phone_number': validated_data.pop('phone_number')
         }
 
         # Create the User
-        user = User.objects.create_user(**validated_data)
-
+        user = User.objects.create(**validated_data)
+        user.is_staff = True
+        user.save()
+        # add user to student group
+        group, _ = Group.objects.get_or_create(name='Students')
+        user.groups.add(group)
         # Create the Student and connect it to the User
         Student.objects.create(user=user, **student_data)
 

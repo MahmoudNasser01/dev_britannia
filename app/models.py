@@ -6,6 +6,7 @@ from django.core.files import File
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django_countries.fields import CountryField
 
 from app.pdf_generate import generate_exam_result_pdf_view
 
@@ -50,6 +51,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         # Check if password has changed by comparing the current value with the original
         if self.pk is not None:  # Check if the object already exists in the database
             original = User.objects.get(pk=self.pk)
+            print(original.password, self.password)
             if original.password != self.password:
                 self.set_password(self.password)  # Only set password if it has changed
         else:
@@ -87,7 +89,7 @@ class Student(models.Model):
     full_name = models.CharField(max_length=255)
     student_id = models.CharField(max_length=50, unique=True)
     passport_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
-    country = models.CharField(max_length=100)
+    country = CountryField(blank_label='Select Country')
     level = models.ForeignKey(CourseLevel, on_delete=models.CASCADE, related_name='students', null=True, blank=True)
     phone_number = models.CharField(max_length=20)
     def __str__(self):

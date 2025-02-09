@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
+from django_countries.fields import CountryField
+from django_countries.widgets import CountrySelectWidget
 
 from .models import User, Student, CourseLevel
 
@@ -8,8 +10,11 @@ class StudentSignupForm(UserCreationForm):
     full_name = forms.CharField(max_length=255, required=True)
     student_id = forms.CharField(max_length=50, required=True)
     passport_number = forms.CharField(max_length=50, required=False)
-    country = forms.CharField(max_length=100, required=True)
+    country = CountryField(blank_label="Select Country").formfield(
+        required=True, widget=CountrySelectWidget()
+    )
     level = forms.ModelChoiceField(queryset=CourseLevel.objects.all(), required=False)
+    phone_number = forms.CharField(max_length=20, required=True)
 
     class Meta:
         model = User
@@ -19,7 +24,6 @@ class StudentSignupForm(UserCreationForm):
         user = super().save(commit=False)
         user.is_staff = True  # Ensure the user is not a staff member
 
-
         if commit:
             user.save()
             Student.objects.create(
@@ -28,9 +32,10 @@ class StudentSignupForm(UserCreationForm):
                 student_id=self.cleaned_data['student_id'],
                 passport_number=self.cleaned_data['passport_number'],
                 country=self.cleaned_data['country'],
-                level=self.cleaned_data['level']
+                level=self.cleaned_data['level'],
+                phone_number=self.cleaned_data['phone_number']
             )
-        # add user to student group
-        group = Group.objects.get(name='student')
+        # Add user to student group
+        group = Group.objects.get(name='Students')
         user.groups.add(group)
         return user
