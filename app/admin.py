@@ -22,6 +22,11 @@ class CustomUserAdmin(admin.ModelAdmin):
             return qs  # Superusers can see all users
         return qs.filter(id=request.user.id)
 
+    def get_readonly_fields(self, request, obj = ...):
+        if request.user.is_superuser:
+            return ()
+        return 'is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions', 'last_login'
+
 
 #     model = User
 #     list_display = ('email', 'is_staff', 'is_active')
