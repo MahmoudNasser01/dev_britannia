@@ -25,7 +25,7 @@ class CustomUserAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj = ...):
         if request.user.is_superuser:
             return ()
-        return 'is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions', 'last_login'
+        return 'is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions', 'last_login', 'password'
 
 
 #     model = User
@@ -75,6 +75,7 @@ class ExamResultAdminForm(forms.ModelForm):
         model = ExamResult
         fields = '__all__'
 
+
     def clean(self):
         cleaned_data = super().clean()
 
@@ -116,6 +117,8 @@ class ExamResultAdmin(ImportExportModelAdmin):
     list_display = ('student', 'date_of_creation', 'level', 'total_score', 'total_percentage')
     search_fields = ('student__full_name', 'student__student_id')
     list_filter = ('level__year', 'level__month')
+    readonly_fields = ('pdf',)
+
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -127,7 +130,7 @@ class ExamResultAdmin(ImportExportModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        student_id = request.GET.get('student_id')  # Get student_id from the URL
+        student_id = request.GET.get('student_id')
         if student_id:
             student = Student.objects.get(id=student_id)
             form.base_fields['student'].initial = student  # Pre-fill the student field

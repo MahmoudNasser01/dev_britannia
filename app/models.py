@@ -1,4 +1,5 @@
 import os
+import uuid
 from io import BytesIO
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -27,9 +28,6 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-
-
-
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
@@ -48,15 +46,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         return hasattr(self, 'teacher_profile')
 
     def save(self, *args, **kwargs):
-        # Check if password has changed by comparing the current value with the original
-        if self.pk is not None:  # Check if the object already exists in the database
-            original = User.objects.get(pk=self.pk)
-            print(original.password, self.password)
-            if original.password != self.password:
-                self.set_password(self.password)  # Only set password if it has changed
-        else:
-            self.set_password(self.password)  # Set password for new objects
-
+        if not self.password.startswith('pbkdf2_sha256$'):  # Avoid double hashing
+            self.set_password(self.password)
         super().save(*args, **kwargs)
 
 
@@ -87,14 +78,21 @@ class CourseLevel(models.Model):
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile')
     full_name = models.CharField(max_length=255)
-    student_id = models.CharField(max_length=50, unique=True)
+    student_id = models.CharField(max_length=50, unique=True, blank=True, null=True)
     passport_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
     country = CountryField(blank_label='Select Country')
     level = models.ForeignKey(CourseLevel, on_delete=models.CASCADE, related_name='students', null=True, blank=True)
     phone_number = models.CharField(max_length=20)
+    gender = models.CharField(choices=(('Male', 'Male'), ('Female', 'Female')), max_length=20)
+    date_of_birth = models.DateField(null=True, blank=True)
+
     def __str__(self):
         return self.full_name
 
+    def save(self, *args, **kwargs):
+        if not self.student_id:
+            self.student_id = f"STU{uuid.uuid4().hex[:8].upper()}"  # Generates a unique 8-character ID
+        super().save(*args, **kwargs)
 
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='teacher_profile')
@@ -104,6 +102,7 @@ class Teacher(models.Model):
     def __str__(self):
         return self.full_name
 
+
 class ManagingDirector(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='director_profile')
     full_name = models.CharField(max_length=255)
@@ -111,7 +110,6 @@ class ManagingDirector(models.Model):
 
     def __str__(self):
         return self.full_name
-
 
 
 class ExamResult(models.Model):
@@ -144,16 +142,18 @@ class ExamResult(models.Model):
     # Attendance and recommendation
     note = models.CharField(max_length=500)
     attendance_percentage = models.DecimalField(max_digits=5, decimal_places=2)
-    teacher_recommendation = models.CharField(max_length=50, choices=[('Repeat', 'Repeat'), ('Progress', 'Progress'), ('Marginal Pass', 'Marginal Pass'), ('Conditional Pass', 'Conditional Pass')])
+    teacher_recommendation = models.CharField(max_length=50, choices=[('Repeat', 'Repeat'), ('Progress', 'Progress'),
+                                                                      ('Marginal Pass', 'Marginal Pass'),
+                                                                      ('Conditional Pass', 'Conditional Pass')])
 
     pdf = models.FileField(upload_to='exam_results_pdfs/', null=True, blank=True)
+
     class Meta:
         verbose_name = "Exam Result"
         verbose_name_plural = "Exam Results"
 
     def __str__(self):
         return f"{self.student.full_name} - {self.date_of_creation}"
-
 
     def save(self, *args, **kwargs):
         # Automatically calculate the total score and percentage
