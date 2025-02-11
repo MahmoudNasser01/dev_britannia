@@ -17,7 +17,6 @@ def generate_exam_result_pdf_view(exam_result):
         logo_path = settings.BASE_DIR / 'static' / 'square-logo.png'
         teacher_signature_path = settings.BASE_DIR / exam_result.teacher.esignature.path
         manager_signature_path = settings.BASE_DIR / ManagingDirector.objects.first().esignature.path
-
         # Render the HTML template with context
         html_content = render_to_string('app/exam_result_pdf.html', {
             'exam_result': exam_result,

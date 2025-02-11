@@ -1,3 +1,4 @@
+import math
 import os
 import uuid
 from io import BytesIO
@@ -45,6 +46,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     def is_teacher(self):
         return hasattr(self, 'teacher_profile')
 
+    @property
+    def is_student(self):
+        return hasattr(self, 'student_profile')
+
+    @property
+    def is_direct_manager(self):
+        return hasattr(self, 'director_profile')
+
+
     def save(self, *args, **kwargs):
         if not self.password.startswith('pbkdf2_sha256$'):  # Avoid double hashing
             self.set_password(self.password)
@@ -68,11 +78,10 @@ class CourseLevel(models.Model):
     ]
     name = models.CharField(max_length=50, unique=True)
     order = models.IntegerField(unique=True)
-    month = models.CharField(max_length=50, choices=MONTHS_CHOICES, verbose_name='Level Month')
-    year = models.IntegerField(verbose_name='Level Year')
+
 
     def __str__(self):
-        return f"{self.name} - {self.month}/{self.year}"
+        return f"{self.name}"
 
 
 class Student(models.Model):
@@ -167,7 +176,10 @@ class ExamResult(models.Model):
                 + self.teacher_assessment
         )
         self.total_percentage = (self.total_score / self.total_score_out_of) * 100
-
+        if self.total_percentage % 1 > 0.50:
+            self.total_percentage = math.ceil(self.total_percentage)
+        else:
+            self.total_percentage = math.floor(self.total_percentage)
         # Generate the PDF content
         pdf_content = generate_exam_result_pdf_view(self)
         pdf_file_like = BytesIO(pdf_content)

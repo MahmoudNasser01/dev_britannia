@@ -1,8 +1,9 @@
 from django import forms
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.forms import DateInput
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.html import format_html
 from import_export.admin import ImportExportModelAdmin
@@ -14,7 +15,30 @@ from .recources import ExamResultResource
 # admin.site.register(User)
 @admin.register(User)
 class CustomUserAdmin(admin.ModelAdmin):
+    list_display = ('email', 'user_type', 'is_active', 'create_student_profile_button')
 
+    def user_type(self, obj):
+        if obj.is_student:
+            return "Student"
+        elif obj.is_teacher:
+            return "Teacher"
+        elif obj.is_direct_manager:
+            return "Direct Manager"
+        elif obj.is_superuser:
+            return "Admin"
+        else:
+            return "Not Registered"
+
+    user_type.short_description = "User Type"  # Set column title
+
+    def create_student_profile_button(self, obj):
+        """Displays a button to create a student profile if the user is not registered."""
+        if not hasattr(obj, 'student_profile'):
+            url = reverse('admin:app_student_add') + f"?user={obj.id}&from_users=1"
+            return format_html('<a class="button" href="{}">Create Student Profile</a>', url)
+        return "-"
+
+    create_student_profile_button.short_description = "Actions"
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -22,11 +46,10 @@ class CustomUserAdmin(admin.ModelAdmin):
             return qs  # Superusers can see all users
         return qs.filter(id=request.user.id)
 
-    def get_readonly_fields(self, request, obj = ...):
+    def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
             return ()
-        return 'is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions', 'last_login', 'password'
-
+        return ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions', 'last_login', 'password')
 
 #     model = User
 #     list_display = ('email', 'is_staff', 'is_active')
@@ -116,7 +139,6 @@ class ExamResultAdmin(ImportExportModelAdmin):
     resource_classes = [ExamResultResource]
     list_display = ('student', 'date_of_creation', 'level', 'total_score', 'total_percentage')
     search_fields = ('student__full_name', 'student__student_id')
-    list_filter = ('level__year', 'level__month')
     readonly_fields = ('pdf',)
 
 
@@ -143,9 +165,9 @@ class ExamResultAdmin(ImportExportModelAdmin):
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'student_id', 'country', 'level', 'exam_result_actions')
+    list_display = ('full_name', 'student_id', 'passport_number', 'country', 'level', 'exam_result_actions')
     search_fields = ('full_name', 'student_id', 'passport_number')
-    list_filter = ('level','level__year', 'level__month')
+    list_filter = ('level',)
     change_form_template = 'admin/student_change_form.html'
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -199,6 +221,22 @@ class StudentAdmin(admin.ModelAdmin):
         else:
             extra_context['exam_results'] = ExamResult.objects.none()  # Empty queryset if no student
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
+
+
+    def get_changeform_initial_data(self, request):
+        """Pre-fill the user field if ?user=<id> is in the URL."""
+        user_id = request.GET.get('user')
+        if user_id:
+            return {'user': user_id}
+        return super().get_changeform_initial_data(request)
+
+    def response_add(self, request, obj, post_url_continue=None):
+        """Redirect to Users list only if 'from_users' parameter exists."""
+        if request.GET.get('from_users') == '1':
+            user_list_url = reverse('admin:app_user_changelist')  # Change 'app' to your actual app name
+            return redirect(user_list_url)
+        return super().response_add(request, obj, post_url_continue)
+
 
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):
