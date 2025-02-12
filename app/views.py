@@ -2,7 +2,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 
-from .models import ExamResult
+from .models import ExamResult, SystemSettings
 from .pdf_generate import generate_exam_result_pdf_view
 from .serializers import RegisterSerializer, ExamResultSerializer, StudentProfileSerializer
 from django.shortcuts import render, redirect

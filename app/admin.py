@@ -8,11 +8,15 @@ from django.urls import reverse
 from django.utils.html import format_html
 from import_export.admin import ImportExportModelAdmin
 
-from .models import User, Student, Teacher, ExamResult, CourseLevel, ManagingDirector
+from .models import User, Student, Teacher, ExamResult, CourseLevel, ManagingDirector, SystemSettings
 from .recources import ExamResultResource
 
 
-# admin.site.register(User)
+@admin.register(SystemSettings)
+class SystemSettingsAdmin(admin.ModelAdmin):
+    list_display = ['student_id_counter_start']
+
+
 @admin.register(User)
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = ('email', 'user_type', 'is_active', 'create_student_profile_button')
@@ -50,6 +54,7 @@ class CustomUserAdmin(admin.ModelAdmin):
         if request.user.is_superuser:
             return ()
         return ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions', 'last_login', 'password')
+
 
 #     model = User
 #     list_display = ('email', 'is_staff', 'is_active')
@@ -98,7 +103,6 @@ class ExamResultAdminForm(forms.ModelForm):
         model = ExamResult
         fields = '__all__'
 
-
     def clean(self):
         cleaned_data = super().clean()
 
@@ -133,14 +137,14 @@ class ExamResultAdminForm(forms.ModelForm):
 
         return cleaned_data
 
+
 @admin.register(ExamResult)
 class ExamResultAdmin(ImportExportModelAdmin):
     form = ExamResultAdminForm
     resource_classes = [ExamResultResource]
     list_display = ('student', 'date_of_creation', 'level', 'total_score', 'total_percentage')
     search_fields = ('student__full_name', 'student__student_id')
-    readonly_fields = ('pdf',)
-
+    readonly_fields = ('pdf','total_score', 'total_percentage')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -162,6 +166,27 @@ class ExamResultAdmin(ImportExportModelAdmin):
     formfield_overrides = {
         models.DateField: {'widget': DateInput(attrs={'type': 'date'})},
     }
+
+    fieldsets = (
+        (None, {
+            'fields': ('student','teacher' ,'level', 'date_of_creation', 'units_covered',
+                       ('grammar', 'grammar_total'),
+                       ('vocabulary', 'vocabulary_total'),
+                       ('reading', 'reading_total'),
+                       ('writing', 'writing_total'),
+                       ('listening', 'listening_total'),
+                       ('speaking', 'speaking_total'),
+                       ('teacher_assessment', 'teacher_assessment_total'),
+                       'attendance_percentage',
+                       'teacher_recommendation',
+                       'note',
+                       'total_score',
+                       'total_percentage',
+                       'pdf'
+                       )}),
+
+    )
+
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
@@ -200,13 +225,13 @@ class StudentAdmin(admin.ModelAdmin):
         # Superusers can edit all profiles
         return super().has_change_permission(request, obj)
 
-
     def exam_result_actions(self, obj):
         # Link to the admin add view for ExamResult with student_id pre-filled
         return format_html(
             '<a class="button" href="{}"><i class="fa fa-plus-circle"></i>Add Exam Result</a>',
             reverse('admin:app_examresult_add') + f'?student_id={obj.id}'
         )
+
     exam_result_actions.short_description = 'Exam Result Actions'
     exam_result_actions.allow_tags = True
 
@@ -221,7 +246,6 @@ class StudentAdmin(admin.ModelAdmin):
         else:
             extra_context['exam_results'] = ExamResult.objects.none()  # Empty queryset if no student
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
-
 
     def get_changeform_initial_data(self, request):
         """Pre-fill the user field if ?user=<id> is in the URL."""
@@ -254,7 +278,6 @@ class TeacherAdmin(admin.ModelAdmin):
                     kwargs['queryset'] = User.objects.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-
     def has_change_permission(self, request, obj=None):
         # allow teachers to edit student profile
         if obj is not None and request.user.is_superuser:
@@ -266,17 +289,14 @@ class TeacherAdmin(admin.ModelAdmin):
         # Superusers can edit all profiles
         return super().has_change_permission(request, obj)
 
+
 @admin.register(ManagingDirector)
 class ManagingDirectorAdmin(admin.ModelAdmin):
     list_display = ('full_name',)
     search_fields = ('full_name',)
 
+
 @admin.register(CourseLevel)
 class CourseLevelAdmin(admin.ModelAdmin):
     list_display = ('name', 'order')
     search_fields = ('name',)
-
-
-
-
-

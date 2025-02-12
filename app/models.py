@@ -100,7 +100,12 @@ class Student(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.student_id:
-            self.student_id = f"STU{uuid.uuid4().hex[:8].upper()}"  # Generates a unique 8-character ID
+            if SystemSettings.objects.first():
+                next_student_id = SystemSettings.objects.first().student_id_counter_start
+                self.student_id = f"BLC-{next_student_id}"
+                SystemSettings.objects.update(student_id_counter_start=next_student_id + 1)
+            else:
+                self.student_id = f"BLC-{uuid.uuid4().hex[:8].upper()}"  # Generates a unique 8-character ID
         super().save(*args, **kwargs)
 
 class Teacher(models.Model):
@@ -149,7 +154,7 @@ class ExamResult(models.Model):
     total_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
 
     # Attendance and recommendation
-    note = models.CharField(max_length=500)
+    note = models.CharField(max_length=500, null=True, blank=True)
     attendance_percentage = models.DecimalField(max_digits=5, decimal_places=2)
     teacher_recommendation = models.CharField(max_length=50, choices=[('Repeat', 'Repeat'), ('Progress', 'Progress'),
                                                                       ('Marginal Pass', 'Marginal Pass'),
@@ -195,3 +200,9 @@ class ExamResult(models.Model):
 
         # Save the instance
         super().save(*args, **kwargs)
+
+
+
+
+class SystemSettings(models.Model):
+    student_id_counter_start = models.IntegerField(default=1)
