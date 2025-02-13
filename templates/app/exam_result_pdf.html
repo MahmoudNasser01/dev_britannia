@@ -25,8 +25,7 @@
         .header {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
-            padding: 10px;
+            padding: 0 10px 0 10px;
             border-radius: 8px;
         }
 
@@ -47,11 +46,11 @@
 
         .header-info h2 {
             margin: 0;
-            font-size: 20px;
+            font-size: 10px;
         }
 
         .address {
-            font-size: 12px;
+            font-size: 10px;
             color: #222;
         }
 
@@ -116,7 +115,6 @@
             .container {
                 box-shadow: none;
                 border: none;
-                padding: 10px;
             }
 
             .header {
@@ -130,7 +128,7 @@
             }
 
             .header-info h2 {
-                font-size: 16px;
+                font-size: 9px;
             }
 
             .address {
@@ -149,7 +147,16 @@
             .footer {
                 font-size: 11px;
             }
+
+            .content {
+                border: thin solid rgba(47, 61, 66, 0.24);
+            }
         }
+
+        .content {
+            border: thin solid rgba(47, 61, 66, 0.54);
+        }
+
     </style>
 </head>
 <body>
@@ -168,119 +175,122 @@
             </div>
         </div>
     </div>
-
     <hr>
+    <h2 style="font-size: 16px; text-align: center;">END OF MONTH COURSE TEST RESULTS</h2>
 
-    <h2 style="font-size: 18px; text-align: center;">END OF MONTH COURSE TEST RESULTS</h2>
-    <table class="results-table">
-        <tr>
-            <th>Name</th>
-            <td>{{ exam_result.student.full_name }}</td>
-        </tr>
-        <tr>
-            <th>Student ID</th>
-            <td>{{ exam_result.student.student_id }}</td>
-        </tr>
-        <tr>
-            <th>Passport Number</th>
-            <td>{{ exam_result.student.passport_number }}</td>
-        </tr>
-        <tr>
-            <th>Nationality</th>
-            <td>{{ exam_result.student.country.name }}</td>
-        </tr>
-        <tr>
-            <th>Date</th>
-            <td>{{ exam_result.date_of_creation|date:"m/d/Y" }}</td>
-        </tr>
-        <tr>
-            <th>Level</th>
-            <td>{{ exam_result.level.name }}</td>
-        </tr>
-        <tr>
-            <th>Units Covered</th>
-            <td>{{ exam_result.units_covered }}</td>
-        </tr>
-        <tr>
-            <th>Teacher</th>
-            <td>{{ exam_result.teacher.full_name }}</td>
-        </tr>
-    </table>
+    <div class="content">
 
-    <table class="results-table">
-        <tr>
-            <th>Assessment</th>
-            <th>Score</th>
-        </tr>
-        <tr>
-            <td>Grammar</td>
-            <td>{{ exam_result.grammar }} / {{ exam_result.grammar_total }}</td>
-        </tr>
-        <tr>
-            <td>Vocabulary</td>
-            <td>{{ exam_result.vocabulary }} / {{ exam_result.vocabulary_total }}</td>
-        </tr>
-        <tr>
-            <td>Reading</td>
-            <td>{{ exam_result.reading }} / {{ exam_result.reading_total }}</td>
-        </tr>
-        <tr>
-            <td>Writing</td>
-            <td>{{ exam_result.writing }} / {{ exam_result.writing_total }}</td>
-        </tr>
-        <tr>
-            <td>Listening</td>
-            <td>{{ exam_result.listening }} / {{ exam_result.listening_total }}</td>
-        </tr>
-        <tr>
-            <td>Speaking</td>
-            <td>{{ exam_result.speaking }} / {{ exam_result.speaking_total }}</td>
-        </tr>
-        <tr>
-            <td>Teacher’s Assessment</td>
-            <td>{{ exam_result.teacher_assessment }} / {{ exam_result.teacher_assessment_total }}</td>
-        </tr>
-        <tr class="highlight">
-            <td>TOTAL SCORE</td>
-            <td>{{ exam_result.total_score }} / {{ exam_result.total_score_out_of }}</td>
-        </tr>
-        <tr class="highlight">
-            <td>Total %</td>
-            <td>{{ exam_result.total_percentage|floatformat:2 }}%</td>
-        </tr>
-    </table>
+        <table class="results-table">
+            <tr>
+                <th>Name</th>
+                <td>{{ exam_result.student.full_name|upper }}</td>
+            </tr>
+            <tr>
+                <th>Student ID</th>
+                <td>{{ exam_result.student.student_id|upper }}</td>
+            </tr>
+            <tr>
+                <th>Passport Number</th>
+                <td>{{ exam_result.student.passport_number|upper }}</td>
+            </tr>
+            <tr>
+                <th>Nationality</th>
+                <td>{{ exam_result.student.country.name|upper }}</td>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <td>{{ exam_result.date_of_creation|date:"m/d/Y" }}</td>
+            </tr>
+            <tr>
+                <th>Level</th>
+                <td>{{ exam_result.level.name|upper }}</td>
+            </tr>
+            <tr>
+                <th>Units Covered</th>
+                <td>{{ exam_result.units_covered|upper }}</td>
+            </tr>
+            <tr>
+                <th>Teacher</th>
+                <td>{{ exam_result.teacher.full_name|upper }}</td>
+            </tr>
+        </table>
 
-    <table class="results-table">
-        <tr>
-            <th>Attendance %</th>
-            <td>{{ exam_result.attendance_percentage|floatformat:2 }}%</td>
-        </tr>
-        <tr>
-            <th>Teacher’s Recommendation</th>
-            <td>{{ exam_result.teacher_recommendation }}</td>
-        </tr>
-    </table>
-    <div>
-        <p style="font-size: 12px">Teacher’s Note</p>
-        <p style="font-size: 11px">{{ exam_result.note }}</p>
-    </div>
+        <table class="results-table">
+            <tr>
+                <th>Assessment</th>
+                <th>Score</th>
+            </tr>
+            <tr>
+                <td>Grammar</td>
+                <td>{{ exam_result.grammar }} / {{ exam_result.grammar_total }}</td>
+            </tr>
+            <tr>
+                <td>Vocabulary</td>
+                <td>{{ exam_result.vocabulary }} / {{ exam_result.vocabulary_total }}</td>
+            </tr>
+            <tr>
+                <td>Reading</td>
+                <td>{{ exam_result.reading }} / {{ exam_result.reading_total }}</td>
+            </tr>
+            <tr>
+                <td>Writing</td>
+                <td>{{ exam_result.writing }} / {{ exam_result.writing_total }}</td>
+            </tr>
+            <tr>
+                <td>Listening</td>
+                <td>{{ exam_result.listening }} / {{ exam_result.listening_total }}</td>
+            </tr>
+            <tr>
+                <td>Speaking</td>
+                <td>{{ exam_result.speaking }} / {{ exam_result.speaking_total }}</td>
+            </tr>
+            <tr>
+                <td>Teacher’s Assessment</td>
+                <td>{{ exam_result.teacher_assessment }} / {{ exam_result.teacher_assessment_total }}</td>
+            </tr>
+            <tr class="highlight">
+                <td>TOTAL SCORE</td>
+                <td>{{ exam_result.total_score }} / {{ exam_result.total_score_out_of }}</td>
+            </tr>
+            <tr class="highlight">
+                <td>Total %</td>
+                <td>{{ exam_result.total_percentage|floatformat:2 }}%</td>
+            </tr>
+        </table>
 
-    <div style="display: flex; justify-content: space-evenly;">
-        <div style="text-align: center">
-            <p style="font-size: 12px">Teacher's Signature</p>
-            <img src="{{ exam_result.teacher.esignature.path }}" alt="Teacher Signature"
-                 style="width: 60px; height: 60px; border-radius: 4px;">
+        <table class="results-table">
+            <tr>
+                <th>Attendance %</th>
+                <td>{{ exam_result.attendance_percentage|floatformat:2 }}%</td>
+            </tr>
+            <tr>
+                <th>Teacher’s Recommendation</th>
+                <td>{{ exam_result.teacher_recommendation }}</td>
+            </tr>
+        </table>
+        <div>
+            <p style="font-size: 11px; height:80px">{{ exam_result.note }}</p>
         </div>
-        <div style="width: 50px; height: 50px"></div>
-        <div style="width: 50px; height: 50px"></div>
+        <div style="display: flex; justify-content: space-evenly;">
+            <div style="text-align: center">
+                <img src="{{ exam_result.teacher.esignature.path }}" alt="Teacher Signature"
+                     style="width: 60px; height: 50px;">
+                <div style="width: 100px; height:2px; background-color: #0a0a0a; margin: auto"></div>
+                <div style="font-size: 11px; margin-top: 5px; margin-bottom: 5px">Teacher's Signature</div>
 
-        <div style="text-align: center">
-            <p style="font-size: 12px">Managing Director's Signature</p>
-            <img src="{{ manager_signature_path }}" alt="Managing Director Signature"
-                 style="width: 60px; height: 60px; border-radius: 4px;">
+            </div>
+            <div style="width: 50px; height: 50px"></div>
+            <div style="width: 50px; height: 50px"></div>
+
+            <div style="text-align: center">
+                <img src="{{ manager_signature_path }}" alt="Managing Director Signature"
+                     style="width: 60px; height: 50px;">
+                <div style="width: 100px; height:2px; background-color: #0a0a0a; margin: auto"></div>
+                <div style="font-size: 11px; margin-top: 5px; margin-bottom: 5px">Managing Director's Signature</div>
+            </div>
         </div>
     </div>
-    <div style="font-size: 10px;">
+    <div style="font-size: 9px;">
         <p>GRADES/RESULT:</p>
         <p>65.0% - 100.0% Pass</p>
         <p>0% - 64.9% Repeat</p>

@@ -54,6 +54,17 @@ class User(AbstractBaseUser, PermissionsMixin):
     def is_direct_manager(self):
         return hasattr(self, 'director_profile')
 
+    @property
+    def get_full_name(self):
+        if self.is_student:
+            return self.student_profile.full_name
+        elif self.is_teacher:
+            return self.teacher_profile.full_name
+        elif self.is_direct_manager:
+            return self.director_profile.full_name
+        else:
+            return self.email
+
 
     def save(self, *args, **kwargs):
         if not self.password.startswith('pbkdf2_sha256$'):  # Avoid double hashing

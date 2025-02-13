@@ -19,7 +19,10 @@ class SystemSettingsAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('email', 'user_type', 'is_active', 'create_student_profile_button')
+    list_display = ('email', 'name','user_type', 'is_active', 'create_student_profile_button')
+
+    def name(self, obj):
+        return obj.get_full_name
 
     def user_type(self, obj):
         if obj.is_student:
