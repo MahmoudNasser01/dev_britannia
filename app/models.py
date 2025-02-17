@@ -101,7 +101,7 @@ class Student(models.Model):
     student_id = models.CharField(max_length=50, unique=True, blank=True, null=True)
     passport_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
     country = CountryField(blank_label='Select Country')
-    level = models.ForeignKey(CourseLevel, on_delete=models.CASCADE, related_name='students', null=True, blank=True)
+    level = models.ForeignKey(CourseLevel, on_delete=models.SET_NULL, related_name='students', null=True, blank=True)
     phone_number = models.CharField(max_length=20)
     gender = models.CharField(choices=(('Male', 'Male'), ('Female', 'Female')), max_length=20)
     date_of_birth = models.DateField(null=True, blank=True)

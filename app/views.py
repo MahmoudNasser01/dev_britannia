@@ -12,6 +12,8 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from .forms import StudentSignupForm
+from django_countries import countries
+
 
 def student_signup(request):
     if request.method == 'POST':
@@ -58,3 +60,9 @@ class StudentProfileView(generics.RetrieveAPIView):
     def get_object(self):
         return self.request.user.student_profile
 
+
+
+class CountryListView(GenericAPIView):
+    def get(self, request):
+        country_list = [{"code": code, "name": name} for code, name in list(countries)]
+        return Response(country_list)
