@@ -13,6 +13,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from .forms import StudentSignupForm
 from django_countries import countries
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 def student_signup(request):
@@ -63,6 +64,30 @@ class StudentProfileView(generics.RetrieveAPIView):
 
 
 class CountryListView(GenericAPIView):
+
+    @extend_schema(
+        summary="Get a list of countries",
+        description="Returns a list of countries with their codes. Supports searching by name or country code.",
+        parameters=[
+            OpenApiParameter(
+                name="search",
+                description="Search for a country by name or code (e.g., 'egy' for Egypt, 'US' for United States).",
+                required=False,
+                type=str
+            ),
+        ],
+        responses={200: "List of countries"},
+    )
     def get(self, request):
+        search_query = request.GET.get("search", "").strip().lower()
+        
         country_list = [{"code": code, "name": name} for code, name in list(countries)]
+
+        if search_query:
+            country_list = [
+                country for country in country_list
+                if search_query in country["name"].lower() or search_query in country["code"].lower()
+            ]
+
         return Response(country_list)
+    
