@@ -22,7 +22,8 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from app.views import CountryListView, RegisterView, UserExamResultListView, StudentProfileView, student_signup
+from app.views import CountryListView, RegisterView, UserExamResultListView, StudentProfileView, student_signup, \
+    activate_user_profile
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -37,6 +38,7 @@ schema_view = get_schema_view(
    permission_classes=(permissions.AllowAny,),
 )
 urlpatterns = [
+    path('student-profile-activate/<int:user_id>/', activate_user_profile, name='student-profile-activate'),
     path('signup/student/', student_signup, name='student_signup'),
     path('api/exam-results/', UserExamResultListView.as_view(), name='my-exam-results'),
 

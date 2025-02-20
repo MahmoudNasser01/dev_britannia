@@ -30,7 +30,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             'level': validated_data.pop('level', None),
             'phone_number': validated_data.pop('phone_number'),
             'gender': validated_data.pop('gender'),
-            'date_of_birth': validated_data.pop('date_of_birth', None)
+            'date_of_birth': validated_data.pop('date_of_birth', None),
+            'is_approved': False
         }
 
         # Create the User
@@ -39,10 +40,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])  # Hash the password
         user.save()
         # add user to student group
-        # group, _ = Group.objects.get_or_create(name='Students')
-        # user.groups.add(group)
-        # # Create the Student and connect it to the User
-        # Student.objects.create(user=user, **student_data)
+        group, _ = Group.objects.get_or_create(name='Students')
+        user.groups.add(group)
+        # Create the Student and connect it to the User
+        student = Student.objects.create(user=user, **student_data)
 
         return user
 

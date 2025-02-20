@@ -105,6 +105,7 @@ class Student(models.Model):
     phone_number = models.CharField(max_length=20)
     gender = models.CharField(choices=(('Male', 'Male'), ('Female', 'Female')), max_length=20)
     date_of_birth = models.DateField(null=True, blank=True)
+    is_approved = models.BooleanField(default=True)
 
     def __str__(self):
         return self.full_name

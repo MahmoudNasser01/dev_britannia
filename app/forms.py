@@ -38,7 +38,8 @@ class StudentSignupForm(UserCreationForm):
                 level=self.cleaned_data['level'],
                 phone_number=self.cleaned_data['phone_number'],
                 gender=self.cleaned_data['gender'],
-                date_of_birth=self.cleaned_data['date_of_birth']
+                date_of_birth=self.cleaned_data['date_of_birth'],
+                is_approved=False
             )
         # Add user to student group
         group = Group.objects.get(name='Students')

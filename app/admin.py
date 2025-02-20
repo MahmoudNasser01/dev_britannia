@@ -6,6 +6,7 @@ from django.forms import DateInput
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from import_export.admin import ImportExportModelAdmin
 
 from .models import User, Student, Teacher, ExamResult, CourseLevel, ManagingDirector, SystemSettings
@@ -19,30 +20,36 @@ class SystemSettingsAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('email', 'name','user_type', 'is_active', 'create_student_profile_button')
+    list_display = ('email', 'name', 'user_type', 'is_active', 'create_student_profile_button')
 
     def name(self, obj):
         return obj.get_full_name
 
     def user_type(self, obj):
-        if obj.is_student:
-            return "Student"
+        if obj.is_student and obj.student_profile.is_approved:
+            url = reverse('admin:app_student_change', args=[obj.student_profile.id])
+            return mark_safe('<a href="{}">{}</a>'.format(url, "Student"))
         elif obj.is_teacher:
-            return "Teacher"
+            url = reverse('admin:app_teacher_change', args=[obj.teacher_profile.id])
+            return mark_safe('<a href="{}">{}</a>'.format(url, "Teacher"))
         elif obj.is_direct_manager:
-            return "Direct Manager"
+            return "Direct Manager"  # Add a link if you have a manager admin page
         elif obj.is_superuser:
-            return "Admin"
+            url = reverse('admin:app_user_change', args=[obj.id])
+            return mark_safe('<a href="{}">{}</a>'.format(url, "Admin"))
         else:
             return "Not Registered"
 
-    user_type.short_description = "User Type"  # Set column title
+    user_type.short_description = "User Type"
 
     def create_student_profile_button(self, obj):
         """Displays a button to create a student profile if the user is not registered."""
         if not hasattr(obj, 'student_profile'):
             url = reverse('admin:app_student_add') + f"?user={obj.id}&from_users=1"
             return format_html('<a class="button" href="{}">Create Student Profile</a>', url)
+        if hasattr(obj, 'student_profile') and not obj.student_profile.is_approved:
+            url = reverse('student-profile-activate', args=[obj.id])
+            return format_html('<a class="button" href="{}">Activate Student Profile</a>', url)
         return "-"
 
     create_student_profile_button.short_description = "Actions"
@@ -147,7 +154,7 @@ class ExamResultAdmin(ImportExportModelAdmin):
     resource_classes = [ExamResultResource]
     list_display = ('student', 'date_of_creation', 'level', 'total_score', 'total_percentage')
     search_fields = ('student__full_name', 'student__student_id')
-    readonly_fields = ('pdf','total_score', 'total_percentage')
+    readonly_fields = ('pdf', 'total_score', 'total_percentage')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -172,7 +179,7 @@ class ExamResultAdmin(ImportExportModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('student','teacher' ,'level', 'date_of_creation', 'units_covered',
+            'fields': ('student', 'teacher', 'level', 'date_of_creation', 'units_covered',
                        ('grammar', 'grammar_total'),
                        ('vocabulary', 'vocabulary_total'),
                        ('reading', 'reading_total'),

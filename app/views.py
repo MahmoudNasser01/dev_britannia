@@ -2,7 +2,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 
-from .models import ExamResult, SystemSettings
+from .models import ExamResult, SystemSettings, User
 from .pdf_generate import generate_exam_result_pdf_view
 from .serializers import RegisterSerializer, ExamResultSerializer, StudentProfileSerializer
 from django.shortcuts import render, redirect
@@ -90,4 +90,17 @@ class CountryListView(GenericAPIView):
             ]
 
         return Response(country_list)
-    
+
+
+
+
+
+def activate_user_profile(request, user_id):
+    user = User.objects.get(id=user_id)
+    user.student_profile.is_approved = True
+    user.student_profile.save()
+    return redirect('admin:app_user_changelist')
+
+
+
+
