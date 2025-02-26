@@ -355,3 +355,13 @@ JAZZMIN_SETTINGS = {
 }
 
 
+#MY EMAIL SETTING
+DEFAULT_FROM_EMAIL = 'app@britannia-app.britannia.edu.my'
+EMAIL_BACKEND ='django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'britannia-app.britannia.edu.my'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'app@britannia-app.britannia.edu.my'
+EMAIL_HOST_PASSWORD = 'p~l;a_AU&sC7' # for the email you created through cPanel. The password for that
+
+

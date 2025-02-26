@@ -8,7 +8,7 @@ User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(max_length=255)
-    passport_number = serializers.CharField(max_length=50, allow_null=True)
+    passport_number = serializers.CharField(max_length=50, required=True)
     country = serializers.CharField(max_length=100)
     phone_number = serializers.CharField(max_length=20)
     level = serializers.PrimaryKeyRelatedField(queryset=CourseLevel.objects.all(), required=False)
@@ -20,6 +20,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['email', 'password', 'full_name', 'passport_number', 'country', 'phone_number', 'level',
                   'gender', 'date_of_birth']
         extra_kwargs = {'password': {'write_only': True}}
+
+
+    def validate_passport_number(self, attrs):
+        # Check if passport number is unique
+        if Student.objects.filter(passport_number=attrs).exists():
+            raise serializers.ValidationError("Passport number already exists")
+        return attrs
 
     def create(self, validated_data):
         # Extract student data

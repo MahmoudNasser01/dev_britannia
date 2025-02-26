@@ -310,3 +310,6 @@ class ManagingDirectorAdmin(admin.ModelAdmin):
 class CourseLevelAdmin(admin.ModelAdmin):
     list_display = ('name', 'order')
     search_fields = ('name',)
+
+    def has_delete_permission(self, request, obj=None):
+        return False

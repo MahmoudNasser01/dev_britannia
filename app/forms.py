@@ -8,7 +8,7 @@ from .models import User, Student, CourseLevel
 
 class StudentSignupForm(UserCreationForm):
     full_name = forms.CharField(max_length=255, required=True)
-    passport_number = forms.CharField(max_length=50, required=False)
+    passport_number = forms.CharField(max_length=50, required=True)
     country = CountryField(blank_label="Select Country").formfield(
         required=True, widget=CountrySelectWidget()
     )
@@ -23,6 +23,14 @@ class StudentSignupForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('email', 'password1', 'password2', 'full_name', 'passport_number', 'country', 'gender', 'level')
+
+
+    def clean_passport_number(self):
+        # Check if passport number is unique
+        if Student.objects.filter(passport_number=self.cleaned_data['passport_number']).exists():
+            raise forms.ValidationError("Passport number already exists")
+        return self.cleaned_data['passport_number']
+
 
     def save(self, commit=True):
         user = super().save(commit=False)
