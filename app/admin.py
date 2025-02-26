@@ -259,6 +259,10 @@ class StudentAdmin(admin.ModelAdmin):
         # Handle the custom button action
         if "_download_all_exam_results" in request.POST:
             try:
+                if not obj.exam_results.all():
+                    self.message_user(request, "Student dont have exams")
+                    return redirect(reverse('admin:app_student_change', args=[obj.id]))
+
                 pdf_content = generate_all_exam_results_pdf(obj)
                 response = HttpResponse(pdf_content, content_type='application/pdf')
                 response['Content-Disposition'] = f'attachment; filename="{obj.full_name}_all_exam_results.pdf"'
@@ -287,6 +291,10 @@ class StudentAdmin(admin.ModelAdmin):
             return
 
         student = queryset.first()
+        if not student.exam_results.all():
+            self.message_user(request, "Student dont have exams")
+            return
+
         try:
             pdf_content = generate_all_exam_results_pdf(student)
             response = HttpResponse(pdf_content, content_type='application/pdf')

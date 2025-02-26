@@ -41,6 +41,8 @@ def generate_all_exam_results_pdf(student):
         # Retrieve all exam results for the student
         exam_results = ExamResult.objects.filter(student=student)
 
+
+
         # Initialize a PdfMerger object
         pdf_merger = PdfMerger()
 
