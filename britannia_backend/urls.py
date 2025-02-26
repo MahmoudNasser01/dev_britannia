@@ -42,10 +42,10 @@ urlpatterns = [
     path('signup/student/', student_signup, name='student_signup'),
     path('api/exam-results/', UserExamResultListView.as_view(), name='my-exam-results'),
 
-    path('auth/password-reset-confirm/<uidb64>/<token>/',
+    path('api/auth/password-reset-confirm/<uidb64>/<token>/',
          PasswordResetConfirmView.as_view(),
          name='password_reset_confirm'),
-    path('profile/', StudentProfileView.as_view(), name='student-profile'),
+    path('api/profile/', StudentProfileView.as_view(), name='student-profile'),
     path('admin/', admin.site.urls),
     # path('api/auth/', include('dj_rest_auth.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -54,7 +54,7 @@ urlpatterns = [
     path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    path('countries-dropdown/', CountryListView.as_view(), name='country-list'),
+    path('api/countries-dropdown/', CountryListView.as_view(), name='country-list'),
 
 ]
 

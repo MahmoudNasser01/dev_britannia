@@ -40,7 +40,7 @@ class RegisterView(GenericAPIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "User and Student registered successfully!"}, status=status.HTTP_201_CREATED)
+            return Response({"detail": "User created successfully!"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -65,23 +65,6 @@ class StudentProfileView(generics.RetrieveAPIView):
         return self.request.user.student_profile
 
 
-def send_async_email(subject, message, from_email, recipient_list):
-    send_mail(subject, message, from_email, recipient_list)
-
-def send_email_in_thread(user_email):
-    subject = 'Welcome to Our Website'
-    message = 'Thank you for registering on our website!'
-    from_email = 'your-email@gmail.com'
-    recipient_list = [user_email]
-
-    # Create and start a new thread
-    email_thread = threading.Thread(
-        target=send_async_email,
-        args=(subject, message, from_email, recipient_list)
-    )
-    email_thread.start()
-
-
 class CountryListView(GenericAPIView):
 
     @extend_schema(
@@ -98,13 +81,6 @@ class CountryListView(GenericAPIView):
         responses={200: "List of countries"},
     )
     def get(self, request):
-        subject = 'Password Reset Request'
-        message = f'Click the link below to reset your password:\n\n'
-        from_email = 'your-email@gmail.com'
-        recipient_list = ['mahmoud.nasser.abdulhamed11@gmail.com']
-
-        send_mail(subject, message, from_email, recipient_list)
-
         search_query = request.GET.get("search", "").strip().lower()
         
         country_list = [{"code": code, "name": name} for code, name in list(countries)]

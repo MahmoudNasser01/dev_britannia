@@ -42,3 +42,4 @@ webencodings==0.5.1
 zopfli==0.2.3.post1
 django-import-export @ git+https://github.com/django-import-export/django-import-export.git@8a6586090b14fc13b7f4db85b6a1d37aa07df44e
 django-countries==7.6.1
+PyPDF2==3.0.1

@@ -3,6 +3,7 @@ from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.forms import DateInput
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.html import format_html
@@ -10,6 +11,7 @@ from django.utils.safestring import mark_safe
 from import_export.admin import ImportExportModelAdmin
 
 from .models import User, Student, Teacher, ExamResult, CourseLevel, ManagingDirector, SystemSettings
+from .pdf_generate import generate_all_exam_results_pdf
 from .recources import ExamResultResource
 
 
@@ -203,40 +205,34 @@ class StudentAdmin(admin.ModelAdmin):
     list_display = ('full_name', 'student_id', 'passport_number', 'country', 'level', 'exam_result_actions')
     search_fields = ('full_name', 'student_id', 'passport_number')
     list_filter = ('level',)
-    change_form_template = 'admin/student_change_form.html'
+    change_form_template = 'admin/student_change_form.html'  # Ensure this template is used
+    actions = ['download_all_exam_results_pdf']  # Add the custom action here
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if not request.user.is_superuser:
             if db_field.name == 'user':
                 if hasattr(request.user, 'student_profile'):
-                    # Filter the user field to show only the current student's user
                     kwargs['queryset'] = User.objects.filter(id=request.user.id)
                 else:
-                    # If not a student, make the user field empty or return no queryset
                     kwargs['queryset'] = User.objects.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser or request.user.is_teacher:
-            return qs  # Superusers can see all students
+            return qs
         if hasattr(request.user, 'student_profile'):
-            return qs.filter(id=request.user.student_profile.id)  # Students can only see their own profile
-        return qs.none()  # Non-students see no profiles
+            return qs.filter(id=request.user.student_profile.id)
+        return qs.none()
 
     def has_change_permission(self, request, obj=None):
-        # allow teachers to edit student profile
         if obj is not None and request.user.is_superuser:
             return True
-        # Allow students to edit their own profile
         if obj is not None and hasattr(request.user, 'student_profile'):
             return obj.id == request.user.student_profile.id
-
-        # Superusers can edit all profiles
         return super().has_change_permission(request, obj)
 
     def exam_result_actions(self, obj):
-        # Link to the admin add view for ExamResult with student_id pre-filled
         return format_html(
             '<a class="button" href="{}"><i class="fa fa-plus-circle"></i>Add Exam Result</a>',
             reverse('admin:app_examresult_add') + f'?student_id={obj.id}'
@@ -251,26 +247,55 @@ class StudentAdmin(admin.ModelAdmin):
         if student:
             exam_results = ExamResult.objects.filter(student=student)
             extra_context['exam_results'] = exam_results
-            # exam could be edit for super user or teacher
             extra_context['can_edit_exam'] = request.user.is_superuser or request.user.is_teacher
+            # Add a custom button for downloading all exam results
+            extra_context['show_download_button'] = True
         else:
-            extra_context['exam_results'] = ExamResult.objects.none()  # Empty queryset if no student
+            extra_context['exam_results'] = ExamResult.objects.none()
+            extra_context['show_download_button'] = False
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
+    def response_change(self, request, obj):
+        # Handle the custom button action
+        if "_download_all_exam_results" in request.POST:
+            try:
+                pdf_content = generate_all_exam_results_pdf(obj)
+                response = HttpResponse(pdf_content, content_type='application/pdf')
+                response['Content-Disposition'] = f'attachment; filename="{obj.full_name}_all_exam_results.pdf"'
+                return response
+            except Exception as e:
+                self.message_user(request, f"Failed to generate PDF: {str(e)}", level='error')
+                return redirect(reverse('admin:app_student_change', args=[obj.id]))
+        return super().response_change(request, obj)
+
     def get_changeform_initial_data(self, request):
-        """Pre-fill the user field if ?user=<id> is in the URL."""
         user_id = request.GET.get('user')
         if user_id:
             return {'user': user_id}
         return super().get_changeform_initial_data(request)
 
     def response_add(self, request, obj, post_url_continue=None):
-        """Redirect to Users list only if 'from_users' parameter exists."""
         if request.GET.get('from_users') == '1':
-            user_list_url = reverse('admin:app_user_changelist')  # Change 'app' to your actual app name
+            user_list_url = reverse('admin:app_user_changelist')
             return redirect(user_list_url)
         return super().response_add(request, obj, post_url_continue)
 
+    # Custom action to download all exam results as a PDF
+    def download_all_exam_results_pdf(self, request, queryset):
+        if queryset.count() != 1:
+            self.message_user(request, "Please select exactly one student to download their exam results.", level='error')
+            return
+
+        student = queryset.first()
+        try:
+            pdf_content = generate_all_exam_results_pdf(student)
+            response = HttpResponse(pdf_content, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{student.full_name}_all_exam_results.pdf"'
+            return response
+        except Exception as e:
+            self.message_user(request, f"Failed to generate PDF: {str(e)}", level='error')
+
+    download_all_exam_results_pdf.short_description = "Download all exam results as PDF"
 
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):

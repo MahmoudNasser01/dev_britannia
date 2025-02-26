@@ -1,12 +1,10 @@
+from io import BytesIO
+
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.conf import settings
 from weasyprint import HTML
-from django.core.files.base import ContentFile
-import os
-
-import os
-from django.core.files.base import ContentFile
+from PyPDF2 import PdfMerger
 
 
 
@@ -33,3 +31,34 @@ def generate_exam_result_pdf_view(exam_result):
 
     except Exception as e:
         raise Exception(f"Failed to generate PDF: {str(e)}")
+
+
+
+def generate_all_exam_results_pdf(student):
+    from app.models import ExamResult
+
+    try:
+        # Retrieve all exam results for the student
+        exam_results = ExamResult.objects.filter(student=student)
+
+        # Initialize a PdfMerger object
+        pdf_merger = PdfMerger()
+
+        # Generate a PDF for each exam result and add it to the merger
+        for exam_result in exam_results:
+            pdf_content = generate_exam_result_pdf_view(exam_result)
+            pdf_merger.append(BytesIO(pdf_content))
+
+        # Create a BytesIO object to hold the final PDF
+        final_pdf = BytesIO()
+
+        # Write the merged PDF to the BytesIO object
+        pdf_merger.write(final_pdf)
+        pdf_merger.close()
+
+        # Return the final PDF content
+        final_pdf.seek(0)
+        return final_pdf.getvalue()
+
+    except Exception as e:
+        raise Exception(f"Failed to generate combined PDF: {str(e)}")
