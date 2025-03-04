@@ -11,6 +11,8 @@ from .serializers import RegisterSerializer, ExamResultSerializer, StudentProfil
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from .utils import send_activation_email
+
 
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
@@ -101,6 +103,7 @@ def activate_user_profile(request, user_id):
     user = User.objects.get(id=user_id)
     user.student_profile.is_approved = True
     user.student_profile.save()
+    send_activation_email(user.email,user.student_profile.full_name)
     return redirect('admin:app_user_changelist')
 
 
