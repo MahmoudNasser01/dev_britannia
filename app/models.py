@@ -33,6 +33,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=True)
+    first_name = models.CharField(max_length=30, blank=True, null=True)
+    last_name = models.CharField(max_length=30, blank=True, null=True)
 
     objects = CustomUserManager()
 
@@ -102,8 +104,8 @@ class Student(models.Model):
     passport_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
     country = CountryField(blank_label='Select Country')
     level = models.ForeignKey(CourseLevel, on_delete=models.SET_NULL, related_name='students', null=True, blank=True)
-    phone_number = models.CharField(max_length=20)
-    gender = models.CharField(choices=(('Male', 'Male'), ('Female', 'Female')), max_length=20)
+    phone_number = models.CharField(max_length=20, null=True, blank=True)
+    gender = models.CharField(choices=(('Male', 'Male'), ('Female', 'Female')), max_length=20, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     is_approved = models.BooleanField(default=True)
 
