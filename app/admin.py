@@ -218,7 +218,7 @@ class StudentAdmin(admin.ModelAdmin):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_queryset(self, request):
-        qs = super().get_queryset(request)
+        qs = super().get_queryset(request).filter(is_approved=True)
         if request.user.is_superuser or request.user.is_teacher:
             return qs
         if hasattr(request.user, 'student_profile'):
