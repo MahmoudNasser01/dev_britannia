@@ -97,13 +97,15 @@ class CountryListView(GenericAPIView):
 
 
 
-
+def send_activation_email_async(email, full_name):
+    thread = threading.Thread(target=send_activation_email, args=(email, full_name))
+    thread.start()
 
 def activate_user_profile(request, user_id):
     user = User.objects.get(id=user_id)
     user.student_profile.is_approved = True
     user.student_profile.save()
-    send_activation_email(user.email,user.student_profile.full_name)
+    send_activation_email_async(user.email,user.student_profile.full_name)
     return redirect('admin:app_user_changelist')
 
 
