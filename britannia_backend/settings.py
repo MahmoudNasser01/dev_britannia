@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    "whitenoise.runserver_nostatic",
     'django.contrib.staticfiles',
     # 3rd party
     'drf_yasg',
@@ -56,6 +57,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -145,9 +147,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = '/static/'  # Add leading slash
-STATIC_ROOT = BASE_DIR / 'static'  # Serve static files from this directory
-STATICFILES_DIRS = []  # Empty in production (only used in development)
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
+WHITENOISE_USE_FINDERS = False
 
 MEDIA_URL = '/media/'  # URL prefix for media files
 MEDIA_ROOT = BASE_DIR / 'media'  # Directory for uploaded media files
@@ -307,7 +309,7 @@ JAZZMIN_SETTINGS = {
     "navigation_expanded": True,
 
     # Hide these apps when generating side menu e.g (auth)
-    "hide_apps": [],
+    "hide_apps": ["oauth2_provider", "drf_social_oauth2", "social_django", "authtoken"],
 
     # Hide these models when generating side menu (e.g auth.user)
     "hide_models": [],
@@ -366,8 +368,6 @@ JAZZMIN_SETTINGS = {
     # override change forms on a per modeladmin basis
     "changeform_format_overrides": {},
     # Add a language dropdown into the admin
-    
-    "hide_apps": ["oauth2_provider", "drf_social_oauth2", "social_django", "authtoken"],
 }
 
 
@@ -412,3 +412,6 @@ SOCIAL_AUTH_PIPELINE = (
     'app.pipeline.fetch_google_data',
     'app.pipeline.create_student_if_not_exist',
 )
+
+from import_export.formats.base_formats import XLSX
+IMPORT_FORMATS = [XLSX]
