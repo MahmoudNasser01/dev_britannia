@@ -180,9 +180,6 @@ SIMPLE_JWT = {
 }
 
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
@@ -309,7 +306,7 @@ JAZZMIN_SETTINGS = {
     "navigation_expanded": True,
 
     # Hide these apps when generating side menu e.g (auth)
-    "hide_apps": ["oauth2_provider", "drf_social_oauth2", "social_django", "authtoken"],
+    # "hide_apps": ["oauth2_provider", "drf_social_oauth2", "social_django", "authtoken"],
 
     # Hide these models when generating side menu (e.g auth.user)
     "hide_models": [],

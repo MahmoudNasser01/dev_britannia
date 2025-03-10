@@ -100,6 +100,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source='user.email')
     is_active = serializers.BooleanField(source='user.is_active')
     exams = serializers.SerializerMethodField()
+    country = serializers.CharField(source='country.name')
 
     class Meta:
         model = Student
